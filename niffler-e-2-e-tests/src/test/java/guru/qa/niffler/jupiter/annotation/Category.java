@@ -8,9 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Category {
-
     String addCategory();
     String username();
-
-
 }

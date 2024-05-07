@@ -12,7 +12,3 @@ public record CategoryJson(
     @JsonProperty("username")
     String username) {
 }
-
-
-
-

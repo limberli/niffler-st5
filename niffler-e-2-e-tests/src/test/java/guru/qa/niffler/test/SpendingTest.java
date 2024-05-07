@@ -31,7 +31,7 @@ public class SpendingTest {
     void doLogin() {
         Selenide.open("http://127.0.0.1:3000/");
         $("a[href*='redirect']").click();
-        $("input[name='username']").setValue("artem129");
+        $("input[name='username']").setValue("artem130");
         $("input[name='password']").setValue("7898456");
         $("button[type='submit']").click();
     }
@@ -43,12 +43,12 @@ public class SpendingTest {
     }
 
     @Category(
-           username = "artem129",
+           username = "artem130",
            addCategory = "Обучение"
     )
 
     @Spend(
-            username = "artem129",
+            username = "artem130",
             description = "QA.GURU Advanced 5",
             amount = 65000.00,
             currency = CurrencyValues.RUB,
