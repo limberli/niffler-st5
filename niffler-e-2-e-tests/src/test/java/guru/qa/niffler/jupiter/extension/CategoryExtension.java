@@ -51,10 +51,11 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
                     try {
                       CategoryJson result =  categoryApi.createCategory(categoryJson).execute().body();
                       //Записанную модель я отправляю в API клиент и получаю результат
-                      extensionContext.getStore(NAMESPACE).put("category", result);
+                      extensionContext.getStore(NAMESPACE).put(extensionContext.getUniqueId(), result);
                       //extensionContext позволяет хранить и передавать данные из разных места из .getStore (хэш-мапа)
                       // если передать разные объекты, в результате получим разные хэш-мапы
                       //когда получили результат мы сохраняем в extensionContext, что мы создали Category
+                      //extensionContext.getUniqueId() - добавляет данные для конкретного теста
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -63,7 +64,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
 
     }
 
-    @Override
+   @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         //supportsParameter не обходим чтобы достать параметры в тест
         //Как работает?
@@ -73,6 +74,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE).get("category");
+        //
+        return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId());
     }
 }
