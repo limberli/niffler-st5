@@ -7,6 +7,7 @@ import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.PeoplePage;
 import guru.qa.niffler.page.WelcomePage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,10 @@ public class UserQueueFriendsTest {
         step("Проверить, что в таблице «Actions» отображается статус «Pending invitation»", () -> {
             peoplePage.checkSendInvitation(anotherUserForTest.username());
         });
+        step("Нажать на кнопку Logout", () -> {
+            $x("//div[@data-tooltip-id='logout']").click();
+        });
+
     }
 
     @Test
@@ -57,6 +62,9 @@ public class UserQueueFriendsTest {
         });
         step("Проверить, что в таблице «Actions» отображается входящий запрос «Submit invitation»", () -> {
             peoplePage.checkReceiveInvitation(anotherUserForTest.username());
+        });
+        step("Нажать на кнопку Logout", () -> {
+            $x("//div[@data-tooltip-id='logout']").click();
         });
     }
 
@@ -73,6 +81,13 @@ public class UserQueueFriendsTest {
         step("Проверить, что в таблице «Actions» отображается статус «You are friends»", () -> {
             peoplePage.checkFriends(anotherUserForTest.username());
         });
+        step("Нажать на кнопку Logout", () -> {
+            $x("//div[@data-tooltip-id='logout']").click();
+        });
     }
-
+/*
+    @AfterEach
+    void closeBrowser(){
+        Selenide.closeWebDriver();
+    }*/
 }

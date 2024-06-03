@@ -9,8 +9,10 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static guru.qa.niffler.jupiter.annotation.User.UserType.*;
 import static guru.qa.niffler.model.UserJson.simpleUser;
 
 public class UsersQueueExtension implements
@@ -21,14 +23,16 @@ public class UsersQueueExtension implements
     public static final ExtensionContext.Namespace NAMESPACE
             = ExtensionContext.Namespace.create(UsersQueueExtension.class);
 
-    private static final Queue<UserJson> USER_INVITATION_SEND = new ConcurrentLinkedQueue<>();
-    private static final Queue<UserJson> USER_INVITATION_RECEIVED = new ConcurrentLinkedQueue<>();
-    private static final Queue<UserJson> USER_WITH_FRIENDS = new ConcurrentLinkedQueue<>();
+    private static final Map<User.UserType, ConcurrentLinkedQueue<UserJson>> USERS = new ConcurrentHashMap<>();
 
     static {
-        USER_INVITATION_SEND.add(simpleUser("Bob", "4567123"));
-        USER_INVITATION_RECEIVED.add(simpleUser("Egor", "4567123"));
-        USER_WITH_FRIENDS.add(simpleUser("Vita", "4567123"));
+        USERS.put(INVITATION_SEND, new ConcurrentLinkedQueue<>());
+        USERS.put(INVITATION_RECEIVED, new ConcurrentLinkedQueue<>());
+        USERS.put(WITH_FRIENDS, new ConcurrentLinkedQueue<>());
+
+        USERS.get(INVITATION_SEND).add(simpleUser("Bob", "4567123"));
+        USERS.get(INVITATION_RECEIVED).add(simpleUser("Egor", "4567123"));
+        USERS.get(WITH_FRIENDS).add(simpleUser("Vita", "4567123"));
     }
 
     @Override
@@ -55,21 +59,19 @@ public class UsersQueueExtension implements
 
         Map<User.UserType, UserJson> users = new HashMap<>();
 
+        for (User.UserType type : allUserTypes) {
         UserJson userForTest = null;
         while (userForTest == null) {
-            for (User.UserType type : allUserTypes) {
                 //переделать switch case java 17
-                if (type == User.UserType.INVITATION_SEND) {
-                    userForTest = USER_INVITATION_SEND.poll();
-                    users.put(User.UserType.INVITATION_SEND, userForTest);
-                } else if (type == User.UserType.INVITATION_RECEIVED) {
-                    userForTest = USER_INVITATION_RECEIVED.poll();
-                    users.put(User.UserType.INVITATION_RECEIVED, userForTest);
-                } else if (type == User.UserType.WITH_FRIENDS) {
-                    userForTest = USER_WITH_FRIENDS.poll();
-                    users.put(User.UserType.WITH_FRIENDS, userForTest);
+                if (type == INVITATION_SEND) {
+                    userForTest = USERS.get(INVITATION_SEND).poll();
+                } else if (type == INVITATION_RECEIVED) {
+                    userForTest = USERS.get(INVITATION_RECEIVED).poll();
+                } else if (type == WITH_FRIENDS) {
+                    userForTest = USERS.get(WITH_FRIENDS).poll();
                 }
             }
+            users.put(type, userForTest);
         }
         Allure.getLifecycle().updateTestCase(testCase -> {
             testCase.setStart(new Date().getTime());
@@ -81,12 +83,12 @@ public class UsersQueueExtension implements
     public void afterEach(ExtensionContext context) throws Exception {
         Map<User.UserType, UserJson> usersTest = context.getStore(NAMESPACE).get(context.getUniqueId(), Map.class);
         for (Map.Entry<User.UserType, UserJson> user : usersTest.entrySet()) {
-            if (user.getKey() == User.UserType.INVITATION_SEND) {
-                USER_INVITATION_SEND.add(user.getValue());
-            } else if (user.getKey() == User.UserType.INVITATION_RECEIVED) {
-                USER_INVITATION_RECEIVED.add(user.getValue());
-            } else if (user.getKey() == User.UserType.WITH_FRIENDS) {
-                USER_WITH_FRIENDS.add(user.getValue());
+            if (user.getKey() == INVITATION_SEND) {
+                USERS.get(INVITATION_SEND).add(user.getValue());
+            } else if (user.getKey() == INVITATION_RECEIVED) {
+                USERS.get(INVITATION_RECEIVED).add(user.getValue());
+            } else if (user.getKey() == WITH_FRIENDS) {
+                USERS.get(WITH_FRIENDS).add(user.getValue());
             }
         }
     }
