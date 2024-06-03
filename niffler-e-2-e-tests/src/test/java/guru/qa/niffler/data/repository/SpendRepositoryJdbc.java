@@ -2,6 +2,7 @@ package guru.qa.niffler.data.repository;
 
 import guru.qa.niffler.data.DataBase;
 import guru.qa.niffler.data.entity.CategoryEntity;
+import guru.qa.niffler.data.entity.SpendEntity;
 import guru.qa.niffler.data.jdbc.DataSourceProvider;
 
 import javax.sql.DataSource;
@@ -56,4 +57,25 @@ public class SpendRepositoryJdbc implements SpendRepository {
         }
 
     }
+
+    @Override
+    public CategoryEntity editCategory(CategoryEntity category) {
+        return null;
+    }
+
+    @Override
+    public SpendEntity createSpend(SpendEntity spend) {
+        return null;
+    }
+
+    @Override
+    public SpendEntity editSpend(SpendEntity spend) {
+        return null;
+    }
+
+    @Override
+    public void removeSpend(SpendEntity spend) {
+
+    }
+
 }
