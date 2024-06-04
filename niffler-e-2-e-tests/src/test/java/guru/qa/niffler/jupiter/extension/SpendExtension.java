@@ -50,7 +50,7 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
                     );
                     try {
                         SpendJson result = spendApi.createSpend(spendJson).execute().body();
-                        extensionContext.getStore(NAMESPACE).put("spend", result);
+                        extensionContext.getStore(NAMESPACE).put(extensionContext.getUniqueId(), result);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -68,6 +68,6 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE).get("spend");
+        return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId());
     }
 }
