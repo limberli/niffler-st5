@@ -7,7 +7,6 @@ import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.PeoplePage;
 import guru.qa.niffler.page.WelcomePage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,7 +70,8 @@ public class UserQueueFriendsTest {
     @Test
     @DisplayName("Друзья")
     void friends(@User(WITH_FRIENDS) UserJson userForTest,
-                 @User(INVITATION_SEND) UserJson anotherUserForTest) {
+                 @User(INVITATION_SEND) UserJson anotherUserForTest
+    ) {
         step("Авторизация пользователя", () -> {
             loginPage.login(userForTest.username(), userForTest.testData().password());
         });
@@ -85,9 +85,5 @@ public class UserQueueFriendsTest {
             $x("//div[@data-tooltip-id='logout']").click();
         });
     }
-/*
-    @AfterEach
-    void closeBrowser(){
-        Selenide.closeWebDriver();
-    }*/
+
 }

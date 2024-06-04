@@ -1,5 +1,7 @@
 package guru.qa.niffler.jupiter.extension;
 
+import com.google.common.util.concurrent.AtomicDouble;
+import com.google.type.TimeOfDayOrBuilder;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
 import io.qameta.allure.Allure;
@@ -33,6 +35,11 @@ public class UsersQueueExtension implements
         USERS.get(INVITATION_SEND).add(simpleUser("Bob", "4567123"));
         USERS.get(INVITATION_RECEIVED).add(simpleUser("Egor", "4567123"));
         USERS.get(WITH_FRIENDS).add(simpleUser("Vita", "4567123"));
+
+    // Не работает в 3-х потоках
+    //    USERS.get(INVITATION_SEND).add(simpleUser("Mark", "4567123"));
+    //    USERS.get(INVITATION_RECEIVED).add(simpleUser("Alex", "4567123"));
+    //    USERS.get(WITH_FRIENDS).add(simpleUser("Vlad", "4567123"));
     }
 
     @Override
@@ -56,7 +63,7 @@ public class UsersQueueExtension implements
         List<User.UserType> allUserTypes = new ArrayList<>();
         allUserTypes.addAll(userListType);
         allUserTypes.addAll(beforeEachTypes);
-
+       //Перезаписывает ключ
         Map<User.UserType, UserJson> users = new HashMap<>();
 
         for (User.UserType type : allUserTypes) {
