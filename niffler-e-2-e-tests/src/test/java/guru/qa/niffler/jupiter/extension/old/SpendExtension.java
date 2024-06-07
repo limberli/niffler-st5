@@ -1,7 +1,8 @@
-package guru.qa.niffler.jupiter.extension;
+package guru.qa.niffler.jupiter.extension.old;
 
 import guru.qa.niffler.api.SpendApi;
 import guru.qa.niffler.jupiter.annotation.Spend;
+import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -15,6 +16,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 
 public class SpendExtension implements BeforeEachCallback, ParameterResolver {
 
@@ -34,6 +36,9 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
         SpendApi spendApi = retrofit.create(SpendApi.class);
 
+        CategoryJson category = extensionContext.getStore(CategoryExtension.NAMESPACE)
+                .get(extensionContext.getUniqueId(), CategoryJson.class);
+
         AnnotationSupport.findAnnotation(
                 extensionContext.getRequiredTestMethod(),
                 Spend.class
@@ -42,14 +47,17 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
                     SpendJson spendJson = new SpendJson(
                             null,
                             new Date(),
-                            spend.category(),
+                            category.category(),
                             spend.currency(),
                             spend.amount(),
                             spend.description(),
-                            spend.username()
+                            category.username(),
+                            null
                     );
                     try {
-                        SpendJson result = spendApi.createSpend(spendJson).execute().body();
+                        SpendJson result = Objects.requireNonNull(
+                                spendApi.createSpend(spendJson).execute().body()
+                        );
                         extensionContext.getStore(NAMESPACE).put(extensionContext.getUniqueId(), result);
                     } catch (IOException e) {
                         throw new RuntimeException(e);

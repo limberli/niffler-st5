@@ -1,7 +1,5 @@
 package guru.qa.niffler.jupiter.extension;
 
-import com.google.common.util.concurrent.AtomicDouble;
-import com.google.type.TimeOfDayOrBuilder;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
 import io.qameta.allure.Allure;

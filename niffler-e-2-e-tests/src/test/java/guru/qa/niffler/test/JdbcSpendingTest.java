@@ -5,11 +5,8 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.Spend;
-import guru.qa.niffler.jupiter.annotation.meta.WebTest;
-import guru.qa.niffler.jupiter.extension.BrowserExtension;
-import guru.qa.niffler.jupiter.extension.CategoryExtension;
-import guru.qa.niffler.jupiter.extension.SpendExtension;
-import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.jupiter.extension.category.JdbcCategoryExtension;
+import guru.qa.niffler.jupiter.extension.spend.JdbcSpendExtension;
 import guru.qa.niffler.model.SpendJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$;
+import static guru.qa.niffler.model.CurrencyValues.RUB;
 
+@ExtendWith({JdbcCategoryExtension.class, JdbcSpendExtension.class})
 
-@WebTest
-public class SpendingTest {
+public class JdbcSpendingTest {
 
     static {
         Configuration.browserSize = "1920x1080";
@@ -38,24 +35,9 @@ public class SpendingTest {
         $("button[type='submit']").click();
     }
 
-    @Test
-    void anotherTest() {
-        Selenide.open("http://127.0.0.1:3000/");
-        $("a[href*='redirect']").should(visible);
-    }
+    @Category(username = "artem130", addCategory = "Обучение9")
+    @Spend(description = "QA.GURU Advanced 5", amount = 65000.00, currency = RUB)
 
-    @Category(
-           username = "artem130",
-           addCategory = "Обучение"
-    )
-
-    @Spend(
-            username = "artem130",
-            description = "QA.GURU Advanced 5",
-            amount = 65000.00,
-            currency = CurrencyValues.RUB,
-            category = "Обучение"
-    )
 
     @Test
     void spendingShouldBeDeletedAfterTableAction(SpendJson spendJson) {
