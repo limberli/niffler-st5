@@ -104,13 +104,13 @@ public class SpendRepositoryJdbc implements SpendRepository {
     public SpendEntity editSpend(SpendEntity spend) {
         try (Connection conn = spendDataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ? WHERE category_id =?")) {
+                     "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ? WHERE id =?")) {
             ps.setString(1, spend.getUsername());
             ps.setDate(2, new Date(spend.getSpendDate().getTime()));
             ps.setString(3, spend.getCurrency().name());
             ps.setDouble(4, spend.getAmount());
             ps.setString(5, spend.getDescription());
-            ps.setObject(6, spend.getCategory().getId());
+            ps.setObject(6, spend.getId());
             ps.executeUpdate();
 
             return spend;

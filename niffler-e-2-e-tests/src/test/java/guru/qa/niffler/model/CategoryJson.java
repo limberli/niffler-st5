@@ -12,7 +12,7 @@ public record CategoryJson(
     String category,
     @JsonProperty("username")
     String username) {
-    //Преобразование данных в Entity
+    //Преобразование данных в Json из Entity
     public static CategoryJson fromEntity(CategoryEntity entity){
         return new CategoryJson(
                 entity.getId(),

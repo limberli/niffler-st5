@@ -1,8 +1,7 @@
 package guru.qa.niffler.jupiter.extension.spend;
 
 import guru.qa.niffler.jupiter.annotation.Spend;
-import guru.qa.niffler.jupiter.extension.old.CategoryExtension;
-import guru.qa.niffler.jupiter.extension.old.SpendExtension;
+import guru.qa.niffler.jupiter.extension.category.AbstractCategoryExtension;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import org.junit.jupiter.api.extension.*;
@@ -13,12 +12,12 @@ import java.util.Date;
 
 public abstract class AbstractSpendExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
     public static final ExtensionContext.Namespace NAMESPACE
-            = ExtensionContext.Namespace.create(SpendExtension.class);
+            = ExtensionContext.Namespace.create(AbstractSpendExtension.class);
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
 
-        CategoryJson category = extensionContext.getStore(CategoryExtension.NAMESPACE)
+        CategoryJson category = extensionContext.getStore(AbstractCategoryExtension.NAMESPACE)
                 .get(extensionContext.getUniqueId(), CategoryJson.class);
 
         AnnotationSupport.findAnnotation(

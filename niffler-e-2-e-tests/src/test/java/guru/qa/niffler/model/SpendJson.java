@@ -25,7 +25,7 @@ public record SpendJson(
         @JsonIgnore
         UUID categoryId) {
 
-    //Преобразование данных в Entity
+    //Преобразование данных в Json из Entity
     public static SpendJson fromEntity(SpendEntity spendEntity) {
         return new SpendJson(
                 spendEntity.getId(),

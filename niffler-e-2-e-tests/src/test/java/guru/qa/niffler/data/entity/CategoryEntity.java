@@ -15,7 +15,7 @@ public class CategoryEntity implements Serializable {
     private String category;
     private String username;
 
-    //Преобразование данных в JSON
+    //Преобразование данных в Entity из JSON
     public static CategoryEntity fromJson(CategoryJson categoryJson){
         CategoryEntity entity = new CategoryEntity();
         entity.setId(categoryJson.id());

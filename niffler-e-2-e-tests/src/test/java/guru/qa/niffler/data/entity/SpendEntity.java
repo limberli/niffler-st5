@@ -20,7 +20,7 @@ public class SpendEntity implements Serializable {
     private String description;
     private CategoryEntity category;
 
-    //Преобразование данных в JSON
+    //Преобразование данных в Entity из JSON
     public static SpendEntity fromJson(SpendJson spendJson) {
         CategoryEntity categoryEntity = new CategoryEntity();
         categoryEntity.setId(spendJson.categoryId());

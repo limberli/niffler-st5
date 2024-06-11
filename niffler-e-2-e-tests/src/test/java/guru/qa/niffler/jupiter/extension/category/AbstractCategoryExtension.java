@@ -1,7 +1,6 @@
 package guru.qa.niffler.jupiter.extension.category;
 
 import guru.qa.niffler.jupiter.annotation.Category;
-import guru.qa.niffler.jupiter.extension.old.CategoryExtension;
 import guru.qa.niffler.model.CategoryJson;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -11,7 +10,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 public abstract class AbstractCategoryExtension implements BeforeEachCallback, AfterEachCallback {
     public static final ExtensionContext.Namespace NAMESPACE
-            = ExtensionContext.Namespace.create(CategoryExtension.class);
+            = ExtensionContext.Namespace.create(AbstractCategoryExtension.class);
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {

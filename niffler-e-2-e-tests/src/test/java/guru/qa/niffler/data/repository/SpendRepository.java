@@ -5,11 +5,13 @@ import guru.qa.niffler.data.entity.SpendEntity;
 
 public interface SpendRepository {
 
+    String repo = System.getProperty("repo");
+
     static SpendRepository getInstance(){
-        if ("sjbc".equals(System.getProperty("repo"))){
+        if ("sjbc".equals(repo)){
             return new SpendRepositorySpringJdbc();
         }
-        if("hibernate".equals(System.getProperty("repo"))){
+        if("hibernate".equals(repo)){
             return new SpendRepositoryHibernate();
         }
         return new SpendRepositoryJdbc();
