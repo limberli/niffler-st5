@@ -42,7 +42,7 @@ public class UserRepositoryJdbc implements UserRepository {
                 userPs.setString(1, user.getUsername());
                 userPs.setString(2, pe.encode(user.getPassword()));
                 userPs.setBoolean(3, user.getEnabled());
-                userPs.setBoolean(4, user.getAccountNonExpired() );
+                userPs.setBoolean(4, user.getAccountNonExpired());
                 userPs.setBoolean(5, user.getAccountNonLocked());
                 userPs.setBoolean(6, user.getCredentialsNonExpired());
 
@@ -72,7 +72,7 @@ public class UserRepositoryJdbc implements UserRepository {
 
                 return user;
 
-            } catch (SQLException e){
+            } catch (SQLException e) {
                 conn.rollback();
                 throw e;
                 //rollback - все изменения которые сделали в запросе должны сделать откат
@@ -90,30 +90,101 @@ public class UserRepositoryJdbc implements UserRepository {
     public UserEntity createUserInUserData(UserEntity user) {
         try (Connection conn = udDataSource.getConnection();
              PreparedStatement userPs = conn.prepareStatement(
-                    "INSERT INTO \"user\" (" +
-                            "username, currency, firstname, surname, photo, photo_small) " +
-                            "VALUES (?, ?, ?, ?, ?, ?)",
-                    PreparedStatement.RETURN_GENERATED_KEYS
-            )) {
+                     "INSERT INTO \"user\" (" +
+                             "username, currency, firstname, surname, photo, photo_small) " +
+                             "VALUES (?, ?, ?, ?, ?, ?)",
+                     PreparedStatement.RETURN_GENERATED_KEYS
+             )) {
+            userPs.setString(1, user.getUsername());
+            userPs.setString(2, user.getCurrency().name());
+            userPs.setString(3, user.getFirstname());
+            userPs.setString(4, user.getSurname());
+            userPs.setObject(5, user.getPhoto());
+            userPs.setObject(6, user.getPhotoSmall());
+
+            userPs.executeUpdate();
+
+            UUID generatedUserId;
+            try (ResultSet resultSet = userPs.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    generatedUserId = UUID.fromString(resultSet.getString("id"));
+                } else {
+                    throw new IllegalStateException("Can`t access to id");
+                }
+            }
+            user.setId(generatedUserId);
+            return user;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public UserAuthEntity updateUserInAuth(UserAuthEntity user) {
+        //BatchUpdate - позволяют модифицировать несколько строк в одной операции (если связанные таблицы)
+        try (Connection conn = authDataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            //Отменяет автоматически изменения когда выполнился запрос
+            try (PreparedStatement userPs = conn.prepareStatement(
+                    "UPDATE \"user\" SET username = ?, password = ?, enabled = ?, account_non_expired = ?, " +
+                            "account_non_locked =?, credentials_non_expired = ? WHERE id =?");
+                 PreparedStatement authorityPs = conn.prepareStatement(
+                         "UPDATE \"authority\" authority = ? WHERE user_id = ?"
+                 )) {
                 userPs.setString(1, user.getUsername());
-                userPs.setString(2, user.getCurrency().name());
-                userPs.setString(3, user.getFirstname());
-                userPs.setString(4, user.getSurname());
-                userPs.setObject(5, user.getPhoto());
-                userPs.setObject(6, user.getPhotoSmall());
+                userPs.setString(2, pe.encode(user.getPassword()));
+                userPs.setBoolean(3, user.getEnabled());
+                userPs.setBoolean(4, user.getAccountNonExpired());
+                userPs.setBoolean(5, user.getAccountNonLocked());
+                userPs.setBoolean(6, user.getCredentialsNonExpired());
+                userPs.setObject(7, user.getId());
 
                 userPs.executeUpdate();
 
-                UUID generatedUserId;
-                try (ResultSet resultSet = userPs.getGeneratedKeys()) {
-                    if (resultSet.next()) {
-                        generatedUserId = UUID.fromString(resultSet.getString("id"));
-                    } else {
-                        throw new IllegalStateException("Can`t access to id");
-                    }
+                for (Authority a : Authority.values()) {
+                    authorityPs.setString(1, a.name());
+                    authorityPs.setObject(2, user.getId());
+                    authorityPs.addBatch();
+                    authorityPs.clearParameters();
+                    //Нужно после каждого Batch делать clearParameters
                 }
-                user.setId(generatedUserId);
+
+                authorityPs.executeBatch();
+                conn.commit();
                 return user;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+                //rollback - все изменения которые сделали в запросе должны сделать откат
+            } finally {
+                conn.setAutoCommit(true);
+                //AutoCommit вернуть в первоначальное состояние
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public UserEntity updateUserInUserData(UserEntity user) {
+        try (Connection conn = udDataSource.getConnection();
+             PreparedStatement userPs = conn.prepareStatement(
+                     "UPDATE \"user\" SET username = ?, currency = ?, firstname = ?, " +
+                             "surname = ?, photo = ?, photo_small =? WHERE id = ?"
+             )) {
+            userPs.setString(1, user.getUsername());
+            userPs.setString(2, user.getCurrency().name());
+            userPs.setString(3, user.getFirstname());
+            userPs.setString(4, user.getSurname());
+            userPs.setObject(5, user.getPhoto());
+            userPs.setObject(6, user.getPhotoSmall());
+            userPs.setObject(7, user.getId());
+
+            userPs.executeUpdate();
+
+            return user;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

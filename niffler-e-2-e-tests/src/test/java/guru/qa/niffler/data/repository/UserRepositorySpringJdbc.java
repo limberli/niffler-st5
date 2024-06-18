@@ -40,6 +40,8 @@ public class UserRepositorySpringJdbc implements UserRepository {
     public UserAuthEntity createUserInAuth(UserAuthEntity user) {
         return authTxTemplate.execute(status -> {
             KeyHolder kh = new GeneratedKeyHolder();
+            //GeneratedKeyHolder используется для получения автоматически сгенерированных ключей,
+            //которые были созданы в результате выполнения операции вставки (INSERT) в базу данных.
             authJdbcTemplate.update(con -> {
                         PreparedStatement userPs = con.prepareStatement("INSERT INTO \"user\" (" +
                                         "username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
@@ -97,14 +99,81 @@ public class UserRepositorySpringJdbc implements UserRepository {
     }
 
     @Override
+    public UserAuthEntity updateUserInAuth(UserAuthEntity user) {
+        return authTxTemplate.execute(status -> {
+            authJdbcTemplate.update(con -> {
+                        PreparedStatement userPs = con.prepareStatement("UPDATE \"user\" SET username = ?, password = ?, enabled = ?, account_non_expired = ?, " +
+                                "account_non_locked =?, credentials_non_expired = ? WHERE id =?");
+
+                        userPs.setString(1, user.getUsername());
+                        userPs.setString(2, pe.encode(user.getPassword()));
+                        userPs.setBoolean(3, user.getEnabled());
+                        userPs.setBoolean(4, user.getAccountNonExpired());
+                        userPs.setBoolean(5, user.getAccountNonLocked());
+                        userPs.setBoolean(6, user.getCredentialsNonExpired());
+                        userPs.setObject(7, user.getId());
+
+                        return userPs;
+                    }
+            );
+
+            authJdbcTemplate.batchUpdate(
+                    "UPDATE \"authority\" authority = ? WHERE user_id = ?",
+                    //Выполняется SQL-запрос на обновление, который устанавливает новое значение authority для каждого user_id
+                    new BatchPreparedStatementSetter() {
+                        //BatchPreparedStatementSetter используется для установки значений в запросе
+                        @Override
+                        public void setValues(PreparedStatement ps, int i) throws SQLException {
+                            ps.setString(1, Authority.values()[i].name());
+                            ps.setObject(2, user.getId());
+                        }
+                        //В методе setValues, для каждого элемента в перечислении Authority,
+                        // его имя устанавливается как первый параметр запроса, а user_id - как второй.
+
+                        @Override
+                        public int getBatchSize() {
+                            return Authority.values().length;
+                            //Метод getBatchSize возвращает количество элементов в перечислении Authority,
+                            // которое определяет размер пакета для обновления.
+                        }
+                    }
+            );
+            return user;
+        });
+    }
+
+    @Override
+    public UserEntity updateUserInUserData(UserEntity user) {
+        userDataJdbcTemplate.update(
+                """
+                         UPDATE "user"
+                         SET username = ?,
+                         currency = ?,
+                         firstname = ?,
+                         surname = ?,
+                         photo = ?,
+                         photo_small = ?
+                        WHERE id = ?""",
+                user.getUsername(),
+                user.getCurrency().name(),
+                user.getFirstname(),
+                user.getSurname(),
+                user.getPhoto(),
+                user.getPhotoSmall(),
+                user.getId());
+
+        return user;
+    }
+
+    @Override
     public Optional<UserEntity> findUserInUserdataById(UUID id) {
         try {
-      return Optional.of(userDataJdbcTemplate.queryForObject(
-                "SELECT * FROM \"user\" WHIRE id = ?",
-                UserEntityRowMapper.instance,
-                id
-        ));
-    } catch (DataRetrievalFailureException e) {
+            return Optional.ofNullable(userDataJdbcTemplate.queryForObject(
+                    "SELECT * FROM \"user\" WHERE id = ?",
+                    UserEntityRowMapper.instance,
+                    id
+            ));
+        } catch (DataRetrievalFailureException e) {
             return Optional.empty();
         }
     }
