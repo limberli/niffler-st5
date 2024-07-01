@@ -1,5 +1,6 @@
 package guru.qa.niffler.data.entity;
 
+import guru.qa.niffler.model.UserJson;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.*;
 @Getter
 @Setter
 public class UserEntity implements Serializable {
+
     private UUID id;
     private String username;
     private CurrencyValues currency;
@@ -16,5 +18,18 @@ public class UserEntity implements Serializable {
     private String surname;
     private byte[] photo;
     private byte[] photoSmall;
+
+    public static UserEntity fromJson(UserJson userJson) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userEntity.getId());
+        userEntity.setUsername(userJson.username());
+        userEntity.setCurrency(userJson.currency());
+        //Не совместимые типы, не могу понять из-за чего.
+        userEntity.setFirstname(userJson.firstname());
+        userEntity.setSurname(userJson.surname());
+        userEntity.setPhoto(userJson.photo());
+        userEntity.setPhotoSmall(userJson.photoSmall());
+        return userEntity;
+    }
 
 }

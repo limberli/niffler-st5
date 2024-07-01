@@ -10,17 +10,23 @@ public interface UserRepository {
 
     String repo = System.getProperty("repo");
 
-    static UserRepository getInstance(){
-        if ("sjbc".equals(repo)){
+    static UserRepository getInstance() {
+        if ("sjbc".equals(repo)) {
             return new UserRepositorySpringJdbc();
         }
-        if("hibernate".equals(repo)){
+        if ("hibernate".equals(repo)) {
             return new UserRepositoryHibernate();
         }
         return new UserRepositoryJdbc();
     }
 
     UserAuthEntity createUserInAuth(UserAuthEntity user);
-    UserEntity createUserInUserData (UserEntity user);
+
+    UserEntity createUserInUserData(UserEntity user);
+
+    UserAuthEntity updateUserInAuth(UserAuthEntity user);
+
+    UserEntity updateUserInUserData(UserEntity user);
+
     Optional<UserEntity> findUserInUserdataById(UUID id);
 }

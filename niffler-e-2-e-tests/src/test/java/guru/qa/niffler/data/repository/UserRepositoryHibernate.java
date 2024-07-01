@@ -6,7 +6,7 @@ import guru.qa.niffler.data.entity.UserEntity;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UserRepositoryHibernate implements UserRepository{
+public class UserRepositoryHibernate implements UserRepository {
     @Override
     public UserAuthEntity createUserInAuth(UserAuthEntity user) {
         return null;
@@ -14,6 +14,16 @@ public class UserRepositoryHibernate implements UserRepository{
 
     @Override
     public UserEntity createUserInUserData(UserEntity user) {
+        return null;
+    }
+
+    @Override
+    public UserAuthEntity updateUserInAuth(UserAuthEntity user) {
+        return null;
+    }
+
+    @Override
+    public UserEntity updateUserInUserData(UserEntity user) {
         return null;
     }
 
