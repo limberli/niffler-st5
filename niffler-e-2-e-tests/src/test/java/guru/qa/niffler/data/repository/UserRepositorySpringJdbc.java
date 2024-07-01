@@ -117,15 +117,19 @@ public class UserRepositorySpringJdbc implements UserRepository {
                     }
             );
 
+            authJdbcTemplate.update("DELETE FROM \"authority\" WHERE user_id = ?", user.getId());
+            //Для чего нужно удалять ?
+
             authJdbcTemplate.batchUpdate(
-                    "UPDATE \"authority\" authority = ? WHERE user_id = ?",
+                    "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
                     //Выполняется SQL-запрос на обновление, который устанавливает новое значение authority для каждого user_id
                     new BatchPreparedStatementSetter() {
                         //BatchPreparedStatementSetter используется для установки значений в запросе
                         @Override
                         public void setValues(PreparedStatement ps, int i) throws SQLException {
-                            ps.setString(1, Authority.values()[i].name());
-                            ps.setObject(2, user.getId());
+                            ps.setObject(1, user.getId());
+                        //    ps.setString(2, user.getAuthorities().get(i).getAuthority().name());
+                            ps.setString(2, Authority.values()[i].name());
                         }
                         //В методе setValues, для каждого элемента в перечислении Authority,
                         // его имя устанавливается как первый параметр запроса, а user_id - как второй.

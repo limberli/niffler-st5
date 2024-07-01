@@ -2,6 +2,7 @@ package guru.qa.niffler.data.repository;
 
 import guru.qa.niffler.data.DataBase;
 import guru.qa.niffler.data.entity.Authority;
+import guru.qa.niffler.data.entity.CurrencyValues;
 import guru.qa.niffler.data.entity.UserAuthEntity;
 import guru.qa.niffler.data.entity.UserEntity;
 import guru.qa.niffler.data.jdbc.DataSourceProvider;
@@ -129,8 +130,14 @@ public class UserRepositoryJdbc implements UserRepository {
             try (PreparedStatement userPs = conn.prepareStatement(
                     "UPDATE \"user\" SET username = ?, password = ?, enabled = ?, account_non_expired = ?, " +
                             "account_non_locked =?, credentials_non_expired = ? WHERE id =?");
+
+                 PreparedStatement deleteUser = conn.prepareStatement("DELETE FROM \"authority\" WHERE user_id = ?");
+                 //Для чего нужно удалять ?
+
+
                  PreparedStatement authorityPs = conn.prepareStatement(
-                         "UPDATE \"authority\" authority = ? WHERE user_id = ?"
+                         "UPDATE \"authority\" SET authority = ? WHERE user_id = ?"
+
                  )) {
                 userPs.setString(1, user.getUsername());
                 userPs.setString(2, pe.encode(user.getPassword()));
@@ -141,6 +148,9 @@ public class UserRepositoryJdbc implements UserRepository {
                 userPs.setObject(7, user.getId());
 
                 userPs.executeUpdate();
+
+                deleteUser.setObject(1, user.getId());
+                deleteUser.executeUpdate();
 
                 for (Authority a : Authority.values()) {
                     authorityPs.setString(1, a.name());
@@ -193,6 +203,30 @@ public class UserRepositoryJdbc implements UserRepository {
 
     @Override
     public Optional<UserEntity> findUserInUserdataById(UUID id) {
-        return Optional.empty();
+        UserEntity user = new UserEntity();
+        try (Connection conn = udDataSource.getConnection();
+             PreparedStatement userPs = conn.prepareStatement(
+                     "SELECT * FROM \"user\" WHERE id = ?"
+                     )) {
+            userPs.setObject(1, id);
+            userPs.execute();
+
+            try (ResultSet resultSet = userPs.getResultSet()){
+                if (resultSet.next()) {
+                    user.setId(resultSet.getObject("id", UUID.class));
+                    user.setUsername(resultSet.getString("username"));
+                    user.setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")));
+                    user.setFirstname(resultSet.getString("firstname"));
+                    user.setSurname(resultSet.getString("surname"));
+                    user.setPhoto(resultSet.getBytes("photo"));
+                    user.setPhotoSmall(resultSet.getBytes("photo_small"));
+                } else {
+                    return Optional.empty();
+                }
+            }
+    } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.of(user);
     }
 }
