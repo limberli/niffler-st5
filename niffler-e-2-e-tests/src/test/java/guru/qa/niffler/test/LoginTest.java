@@ -27,7 +27,7 @@ public class LoginTest {
         write.setAuthority(Authority.write);
         
         UserAuthEntity user = new UserAuthEntity();
-        user.setUsername("h_user2");
+        user.setUsername("h_user3");
         user.setPassword("12345");
         user.setEnabled(true);
         user.setAccountNonExpired(true);
@@ -37,7 +37,7 @@ public class LoginTest {
         userRepository.createUserInAuth(user);
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setUsername("h_user2");
+        userEntity.setUsername("h_user3");
         userEntity.setCurrency(CurrencyValues.RUB);
         userDataUser = userRepository.createUserInUserData(userEntity);
     }
@@ -46,7 +46,7 @@ public class LoginTest {
     void doLogin() {
         Selenide.open("http://127.0.0.1:3000/");
         $("a[href*='redirect']").click();
-        $("input[name='username']").setValue("h_user2");
+        $("input[name='username']").setValue("h_user3");
         $("input[name='password']").setValue("12345");
         $("button[type='submit']").click();
         $(".header__avatar").should(visible);

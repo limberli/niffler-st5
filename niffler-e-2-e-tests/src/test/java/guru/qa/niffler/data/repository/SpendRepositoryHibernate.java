@@ -7,6 +7,8 @@ import guru.qa.niffler.data.jpa.EmProvider;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
+import java.util.List;
+
 public class SpendRepositoryHibernate implements SpendRepository{
 
     private final EntityManager em = EmProvider.entityManager(DataBase.SPEND);
@@ -42,4 +44,20 @@ public class SpendRepositoryHibernate implements SpendRepository{
     public void removeSpend(SpendEntity spend) {
         em.remove(spend);
     }
+
+    @Override
+    public CategoryEntity findByUsernameAndCategory(String username, String category) {
+        return em.createQuery("FROM CategoryEntity WHERE category = :category and username = :username", CategoryEntity.class)
+                .setParameter("category", category)
+                .setParameter("username", username)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<SpendEntity> findAllSpendsByUsername(String username) {
+        return em.createQuery("FROM SpendEntity WHERE username = :username", SpendEntity.class)
+                .setParameter("username", username)
+                .getResultList();
+    }
+
 }

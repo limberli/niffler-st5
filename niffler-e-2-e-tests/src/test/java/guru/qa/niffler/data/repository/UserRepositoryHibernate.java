@@ -35,4 +35,31 @@ public class UserRepositoryHibernate implements UserRepository{
     public Optional<UserEntity> findUserInUserdataById(UUID id) {
         return Optional.ofNullable(udEm.find(UserEntity.class, id));
     }
+
+    @Override
+    public Optional<UserAuthEntity> findUserInAuth(String userName) {
+        // Создаем запрос к базе данных авторизации
+        return Optional.ofNullable(authEm.createQuery("FROM UserAuthEntity WHERE username = :username", UserAuthEntity.class)
+                // Устанавливаем параметр запроса
+                .setParameter("username", userName)
+                // Получаем результат запроса
+                .getSingleResult());
+    }
+
+    @Override
+    public Optional<Object> findUserInUserData(String userName) {
+        return Optional.ofNullable(udEm.createQuery("FROM UserEntity WHERE username = :username", UserEntity.class)
+                .setParameter("username", userName)
+                .getSingleResult());
+    }
+
+    @Override
+    public UserAuthEntity updateUserInAuth(UserAuthEntity user) {
+        return authEm.merge(user);
+    }
+
+    @Override
+    public UserEntity updateUserInUserdata(UserEntity user) {
+        return udEm.merge(user);
+    }
 }
