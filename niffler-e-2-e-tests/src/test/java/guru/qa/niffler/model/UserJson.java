@@ -53,7 +53,6 @@ public record UserJson(
                 userEntity.getFirstname(),
                 userEntity.getSurname(),
                 userEntity.getCurrency(),
-                //Почему не совместимые типы?
                 userEntity.getPhoto(),
                 userEntity.getPhotoSmall(),
                 null,

@@ -2,10 +2,11 @@ package guru.qa.niffler.data.repository;
 
 import guru.qa.niffler.data.DataBase;
 import guru.qa.niffler.data.entity.Authority;
-import guru.qa.niffler.data.entity.CurrencyValues;
+import guru.qa.niffler.data.entity.AuthorityEntity;
 import guru.qa.niffler.data.entity.UserAuthEntity;
 import guru.qa.niffler.data.entity.UserEntity;
 import guru.qa.niffler.data.jdbc.DataSourceProvider;
+import guru.qa.niffler.model.CurrencyValues;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -136,7 +137,7 @@ public class UserRepositoryJdbc implements UserRepository {
 
 
                  PreparedStatement authorityPs = conn.prepareStatement(
-                         "UPDATE \"authority\" SET authority = ? WHERE user_id = ?"
+                         "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)"
 
                  )) {
                 userPs.setString(1, user.getUsername());
@@ -152,9 +153,9 @@ public class UserRepositoryJdbc implements UserRepository {
                 deleteUser.setObject(1, user.getId());
                 deleteUser.executeUpdate();
 
-                for (Authority a : Authority.values()) {
-                    authorityPs.setString(1, a.name());
-                    authorityPs.setObject(2, user.getId());
+                for (AuthorityEntity authority : user.getAuthorities()) {
+                    authorityPs.setObject(1, user.getId());
+                    authorityPs.setString(2, authority.getAuthority().name());
                     authorityPs.addBatch();
                     authorityPs.clearParameters();
                     //Нужно после каждого Batch делать clearParameters

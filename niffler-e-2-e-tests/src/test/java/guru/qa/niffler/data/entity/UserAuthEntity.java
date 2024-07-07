@@ -27,9 +27,9 @@ public class UserAuthEntity implements Serializable {
         AuthorityEntity readAuthority = new AuthorityEntity();
         AuthorityEntity writeAuthority = new AuthorityEntity();
 
-        readAuthority.setUser_id(userJson.id());
+        readAuthority.setUserId(userJson.id());
         readAuthority.setAuthority(Authority.read);
-        writeAuthority.setUser_id(userJson.id());
+        writeAuthority.setUserId(userJson.id());
         writeAuthority.setAuthority(Authority.write);
 
         userAuthEntity.setId(userJson.id());

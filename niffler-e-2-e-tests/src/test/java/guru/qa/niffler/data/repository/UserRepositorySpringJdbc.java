@@ -136,7 +136,7 @@ public class UserRepositorySpringJdbc implements UserRepository {
 
                         @Override
                         public int getBatchSize() {
-                            return Authority.values().length;
+                            return user.getAuthorities().size();
                             //Метод getBatchSize возвращает количество элементов в перечислении Authority,
                             // которое определяет размер пакета для обновления.
                         }
