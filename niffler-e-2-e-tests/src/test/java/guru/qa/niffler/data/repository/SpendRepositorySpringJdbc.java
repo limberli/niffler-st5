@@ -4,11 +4,16 @@ import guru.qa.niffler.data.DataBase;
 import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
 import guru.qa.niffler.data.jdbc.DataSourceProvider;
+import guru.qa.niffler.data.sjdbc.CategoryEntityRowMapper;
+import guru.qa.niffler.data.sjdbc.SpendEntityRowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.*;
+import java.util.List;
 import java.util.UUID;
 
 public class SpendRepositorySpringJdbc implements SpendRepository {
@@ -87,5 +92,36 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
                 spend.getId()
 
         );
+    }
+
+    @Override
+    public CategoryEntity findByUsernameAndCategory(String username, String category) {
+        return jdbcTemplate.queryForObject("SELECT * FROM category WHERE category = ? AND username = ?",
+                new CategoryEntityRowMapper(), category, username);
+    }
+
+    @Override
+    public List<SpendEntity> findAllSpendsByUsername(String username) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT * FROM spend WHERE username = ?",
+                    SpendEntityRowMapper.instance,
+                    username
+            );
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public CategoryEntity getCategoryEntityById(UUID categoryId) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT * FROM category where id = ?",
+                    CategoryEntityRowMapper.instance,
+                    categoryId
+            );
+        } catch (DataRetrievalFailureException e) {
+            throw new RuntimeException("Не найдена категория по id " + e);
+        }
     }
 }
